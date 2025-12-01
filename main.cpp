@@ -1,73 +1,133 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 
-struct Node {
-    int block_id_;
-    int free_memory_size_ = 1024; // Initializing all blocks with 1024 bytes (all same size -> ordered)
-    Node* next;
+struct FreeListNode {
+    int block_id_, free_memory_size_;
+    FreeListNode* next;
+
+    FreeListNode(int BlockIdNumber) : block_id_(BlockIdNumber), free_memory_size_(1024),next(nullptr) {}
 };
 
-struct AllocationNode {
-    int request_id_;
-    int block_id_;
-    int memory_size_;
-    AllocationNode* next;
-};
+class FreeList {
+private:
+    FreeListNode* head;
+    FreeListNode* tail;
 
-// findSmallestBlock();
-// updateFreeListOrder();
+public:
+    FreeList() : head(nullptr), tail(nullptr) {
+        for (int i = 1; i <= 1024; i++)
+            addNode(i);
+    }
+    ~FreeList() {
+        FreeListNode* current = head;
+        while (current) {
+            FreeListNode* nextNode = current->next;
+            delete current;
+            current = nextNode;
+        }
+    }
 
-int main() {
-    // Initializing free list
-    Node* head = nullptr;
-    Node* tail = nullptr;
-    for (int i = 1; i <= 1024; i++) {
-        Node* newNode = new Node;
 
-        newNode->block_id_ = i;
-        newNode->next = nullptr;
+    void addNode(int BlockId) { // Equivalent to push_back()
+        FreeListNode* newNode = new FreeListNode(BlockId);
 
         if (head == nullptr) {
             head = newNode;
             tail = newNode;
-        } else {
+        }
+        else {
             tail->next = newNode;
             tail = newNode;
         }
     }
 
-    // For traversing through the free list
-    Node* current = head;
-    while (current != nullptr) {
-        std::cout << "Block ID: " << current->block_id_ << ", Size: " << current->free_memory_size_ << std::endl;
-        current = current->next;
+    // void SortFreeList();
+};
+
+struct AllocationListNode {
+    int request_id_, block_id_, memory_size_;
+    AllocationListNode* next;
+
+    AllocationListNode(int requestID, int blockID, int memorySize) :
+        request_id_(requestID), block_id_(blockID), memory_size_(memorySize), next(nullptr) {}
+};
+
+class AllocationList {
+private:
+    AllocationListNode* head;
+    AllocationListNode* tail;
+
+public:
+    AllocationList() : head(nullptr), tail(nullptr) {}
+    ~AllocationList() {
+        AllocationListNode* current = head;
+        while (current) {
+            AllocationListNode* nextNode = current->next;
+            delete current;
+            current = nextNode;
+        }
     }
+
+
+    // Adding node from the back
+    void addNode(int requestID, int blockID, int memorySize) {
+        AllocationListNode* newNode = new AllocationListNode(requestID, blockID, memorySize);
+
+        if (head == nullptr) {
+            head = newNode;
+            tail = newNode;
+        }
+        else {
+            tail->next = newNode;
+            tail = newNode;
+        }
+    }
+};
+
+int main() {
+    // Initializing free list
+    FreeList* freeList = new FreeList();
+
+    // For traversing through the free list
+
 
     std::ifstream requestFile("requests-1.txt");
     std::string inputString;
+    int requestCounterA = 1;
+    int requestCounterR = 1;
 
     while (std::getline(requestFile, inputString)) {
-        int requestCounter = 1;
+
 
         // Parsing each line from request-1.txt, defining each variable
-        std::string userRequestType = inputString.substr(0, 1);
-        int userRequestId = std::stoi(inputString.substr(2, 1));
-        int userAllocationSize = std::stoi(inputString.substr(4));
+        std::string userRequestType;
+        int userRequestID, userAllocationSize;
+
+        std::istringstream iss(inputString);
+        iss >> userRequestType >> userRequestID;
 
 
         // Determine next instruction based on request type
-        if (userRequestType == "A")
+        if (userRequestType == "A") {
+            iss >> userAllocationSize;
             std::cout << userAllocationSize << " bytes have been allocated at block " << "block #"
-                      << " for request " << requestCounter << std::endl;
-        else if (userRequestType == "R")
-            std::cout << "Release\n";
+                      << " for request " << requestCounterA << std::endl;
+            requestCounterA++;
+        }
+        else if (userRequestType == "R") {
+            std::cout << "Released bytes for request " << requestCounterR << std::endl;
+            requestCounterR++;
+        }
+
         else
             std::cout << "Invalid request type\n";
 
-        requestCounter++;
+
     }
     requestFile.close();
+
 
     // Deleting all nodes in a linked list
 
@@ -77,5 +137,7 @@ int main() {
 
 
     finalSizeFile.close();
+    delete freeList;
+
     return 0;
 }
