@@ -7,7 +7,7 @@
  *  ----- HOW TO RUN THE PROGRAM -----
  *
  *  1. In Cygwin, compile program typing:
- *      g++ CSci113_P5.cpp
+ *      g++ CSci114_P5.cpp
  *  (MAKE SURE to have 'requests-1.txt' in the same directory, or else the program won't work)
  *
  *  2. Type "./a.exe" to run the program
