@@ -228,7 +228,7 @@ int main() {
 
             FreeListNode* selectedNode = freeList->allocateFindNode(userAllocationSize);
             if (selectedNode == nullptr)
-                std::cout << "Couldn't find available node.\n";
+                std::cout << "Unable to find appropriate memory block.\n";
             else {
                 std::cout << userAllocationSize << " bytes have been allocated at block " << selectedNode->block_id_
                           << " for request " << requestCounterA << std::endl;
@@ -244,7 +244,7 @@ int main() {
         else if (userRequestType == "R") {
             AllocationListNode* selectedAllocatedNode = allocationList->releaseFindNode(userRequestID);
             if (selectedAllocatedNode == nullptr)
-                std::cout << "Couldn't find available node.\n";
+                std::cout << "Unable to find appropriate memory block.\n";
             else {
                 FreeListNode* selectedFreeNode = freeList->blockIDFindNode(selectedAllocatedNode->block_id_);
                 std::cout << selectedAllocatedNode->memory_size_ << " bytes have been returned back to block "
@@ -259,7 +259,7 @@ int main() {
             requestCounterR++;
         }
         else
-            std::cout << "Invalid request type\n";
+            std::cout << "Invalid request type (Must be A or R)\n";
     }
     requestFile.close();
 
